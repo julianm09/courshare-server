@@ -42,6 +42,11 @@ const getCurriculums = (req, res) => {
 
     courses = data;
 
+    courses = sortArr(courses, {
+      key: "date",
+      type: "desc",
+    });
+
     if (category || search) {
       courses = filtering(data, {
         category: category,
@@ -75,6 +80,12 @@ const getCurriculums = (req, res) => {
 };
 
 const getCurriculumsById = (req, res) => {
+  Curriculum.find({}, (err, data) => {
+    res.json(data.filter((item) => item.id == req.params.id));
+  });
+};
+
+const getCurriculumsByUid = (req, res) => {
   Curriculum.find({}, (err, data) => {
     const { page, category, search } = req.query;
     var courses = [];
@@ -118,24 +129,17 @@ const addCurriculum = async (req, res) => {
   res.send();
 };
 
-/* const likeCurriculum = async (req, res) => {
-  let doc = await User.findOne({ uid: req.body.uid });
-
-  let curr = null;
-
-  if (doc) {
-    curr = doc.curriculums.find((i) =>
-      i["id"].includes(req.body.curriculum["id"])
-    );
-  }
-  console.log(curr);
+const addCourse = async (req, res) => {
+  console.log("req", req.body);
 
   res.send();
-}; */
+};
 
 module.exports = {
   getCurriculums,
   getCurriculumsById,
+  getCurriculumsByUid,
   addCurriculum,
   Curriculum,
+  addCourse,
 };
