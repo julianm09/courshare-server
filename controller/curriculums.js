@@ -132,7 +132,28 @@ const addCurriculum = async (req, res) => {
 const addCourse = async (req, res) => {
   console.log("req", req.body);
 
-  res.send();
+  let doc = await Curriculum.findOne({ uid: req.body.uid });
+
+  let includesCourse = null;
+
+  if (doc) {
+    includesCourse = doc.courses.some((i) =>
+      i["Course Name"].includes(req.body.course["Course Name"])
+    );
+  }
+
+  if (includesCourse) {
+    res.send();
+  } else {
+    Curriculum.findOneAndUpdate(
+      { uid: req.body.uid },
+      { $push: { courses: req.body.course } },
+      { new: true },
+      (err, d) => {
+        res.send(d);
+      }
+    );
+  }
 };
 
 module.exports = {
