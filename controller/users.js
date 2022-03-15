@@ -64,6 +64,8 @@ const saveCourse = async (req, res) => {
     );
   }
 
+  //update
+
   if (includesCourse) {
     User.findOneAndUpdate(
       { uid: req.body.uid },
