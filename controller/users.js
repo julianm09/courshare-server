@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
+const { filtering } = require("../functions/filter");
 const { Curriculum } = require("./curriculums");
 
 const userSchema = new mongoose.Schema({
@@ -47,7 +48,7 @@ const addUser = async (req, res) => {
     user.uid = req.body.uid;
     user.name = req.body.name;
     user.email = req.body.email;
-    user.courses = [req.body.course];
+    user.courses;
     user.save();
     res.send();
   }
@@ -89,7 +90,29 @@ const saveCourse = async (req, res) => {
 
 const getSavedCourses = (req, res) => {
   User.find({ uid: req.body.uid }, (err, data) => {
-    res.json(data[0].courses);
+    const { search, page } = req.body;
+
+    var courses = [];
+
+    const d = data[0];
+
+    if (d) {
+      courses = d.courses;
+    }
+
+    if (search) {
+      courses = filtering(courses, {
+        title: search,
+      });
+    }
+
+    const length = courses.length;
+
+    if (page) {
+      courses = courses.slice(Number(page) * 12, (Number(page) + 1) * 12);
+    }
+
+    res.json({ courses, length });
   });
 };
 

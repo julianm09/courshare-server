@@ -1,4 +1,4 @@
-export function filtering(
+const filtering = (
   arr = [],
   config = {
     title: null,
@@ -6,9 +6,9 @@ export function filtering(
     rating: null,
     level: null,
     skills: null,
-    category: null
+    category: null,
   }
-) {
+) => {
   const { title, university, rating, level, skills, category } = config;
 
   if (title || university || rating || level || skills || category) {
@@ -47,4 +47,6 @@ export function filtering(
   } else {
     return [];
   }
-}
+};
+
+module.exports = { filtering };
