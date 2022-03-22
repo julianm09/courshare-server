@@ -35,124 +35,140 @@ const curriculumSchema = new mongoose.Schema({
 const Curriculum = mongoose.model("Curriculum", curriculumSchema);
 
 const getCurriculums = (req, res) => {
-  Curriculum.find({}, (err, data) => {
-    const { page, category, search, sortBy } = req.query;
+  try {
+    Curriculum.find({}, (err, data) => {
+      const { page, category, search, sortBy } = req.query;
 
-    var courses = [];
+      var courses = [];
 
-    courses = data;
+      courses = data;
 
-    courses = sortArr(courses, {
-      key: "date",
-      type: "desc",
-    });
-
-    if (category || search) {
-      courses = filtering(data, {
-        category: category,
-        title: search,
+      courses = sortArr(courses, {
+        key: "date",
+        type: "desc",
       });
-    }
 
-    if (sortBy) {
-      if (sortBy == "Top") {
-        courses = sortArr(courses, {
-          key: "likes",
-          type: "desc",
+      if (category || search) {
+        courses = filtering(data, {
+          category: category,
+          title: search,
         });
       }
-      if (sortBy == "New") {
-        courses = sortArr(courses, {
-          key: "date",
-          type: "desc",
-        });
+
+      if (sortBy) {
+        if (sortBy == "Top") {
+          courses = sortArr(courses, {
+            key: "likes",
+            type: "desc",
+          });
+        }
+        if (sortBy == "New") {
+          courses = sortArr(courses, {
+            key: "date",
+            type: "desc",
+          });
+        }
       }
-    }
 
-    const length = courses.length;
+      const length = courses.length;
 
-    if (page) {
-      courses = courses.slice(Number(page) * 3, (Number(page) + 1) * 3);
-    }
+      if (page) {
+        courses = courses.slice(Number(page) * 3, (Number(page) + 1) * 3);
+      }
 
-    res.json({ courses, length: length });
-  });
+      res.json({ courses, length: length });
+    });
+  } catch (err) {
+    res.status(500).send("An unknown error occurred.");
+  }
 };
 
 const getCurriculumsById = (req, res) => {
-  Curriculum.find({}, (err, data) => {
-    res.json(data.filter((item) => item.id == req.params.id));
-  });
+  try {
+    Curriculum.find({}, (err, data) => {
+      res.json(data.filter((item) => item.id == req.params.id));
+    });
+  } catch (err) {
+    res.status(500).send("An unknown error occurred.");
+  }
 };
 
 const getCurriculumsByUid = (req, res) => {
-  Curriculum.find({}, (err, data) => {
-    const { page, category, search } = req.query;
-    var courses = [];
+  try {
+    Curriculum.find({}, (err, data) => {
+      const { page, category, search } = req.query;
+      var courses = [];
 
-    courses = data.filter((item) => item.uid == req.params.id);
+      courses = data.filter((item) => item.uid == req.params.id);
 
-    if (category || search) {
-      courses = filtering(data, {
-        category: category,
-        title: search,
-      });
-    }
+      if (category || search) {
+        courses = filtering(data, {
+          category: category,
+          title: search,
+        });
+      }
 
-    const length = courses.length;
+      const length = courses.length;
 
-    if (page) {
-      courses = courses.slice(Number(page) * 3, (Number(page) + 1) * 3);
-    }
+      if (page) {
+        courses = courses.slice(Number(page) * 3, (Number(page) + 1) * 3);
+      }
 
-    res.json({ courses, length: length });
-  });
+      res.json({ courses, length: length });
+    });
+  } catch (err) {
+    res.status(500).send("An unknown error occurred.");
+  }
 };
 
 const addCurriculum = async (req, res) => {
-  console.log("req", req.body);
+  try {
+    const curriculum = new Curriculum();
+    curriculum.id = uuidv4();
+    curriculum.name = req.body.name;
+    curriculum.date = new Date();
 
-  const curriculum = new Curriculum();
-  curriculum.id = uuidv4();
-  curriculum.name = req.body.name;
-  curriculum.date = new Date();
+    curriculum.username = req.body.username;
+    curriculum.uid = req.body.uid;
 
-  curriculum.username = req.body.username;
-  curriculum.uid = req.body.uid;
+    curriculum.category = req.body.category;
+    curriculum.courses = [req.body.course];
 
-  curriculum.category = req.body.category;
-  curriculum.courses = [req.body.course];
+    curriculum.likes = 0;
 
-  curriculum.likes = 0;
-
-  curriculum.save();
-  res.send();
+    curriculum.save();
+    res.send();
+  } catch (err) {
+    res.status(500).send("An unknown error occurred.");
+  }
 };
 
 const addCourse = async (req, res) => {
-  console.log("req", req.body);
+  try {
+    let doc = await Curriculum.findOne({ id: req.body.id });
 
-  let doc = await Curriculum.findOne({ id: req.body.id });
+    let includesCourse = null;
 
-  let includesCourse = null;
+    if (doc) {
+      includesCourse = doc.courses.some((i) =>
+        i["Course Name"].includes(req.body.course["Course Name"])
+      );
+    }
 
-  if (doc) {
-    includesCourse = doc.courses.some((i) =>
-      i["Course Name"].includes(req.body.course["Course Name"])
-    );
-  }
-
-  if (includesCourse) {
-    res.send();
-  } else {
-    Curriculum.findOneAndUpdate(
-      { id: req.body.id },
-      { $push: { courses: req.body.course } },
-      { new: true },
-      (err, d) => {
-        res.send(d);
-      }
-    );
+    if (includesCourse) {
+      res.send();
+    } else {
+      Curriculum.findOneAndUpdate(
+        { id: req.body.id },
+        { $push: { courses: req.body.course } },
+        { new: true },
+        (err, d) => {
+          res.send(d);
+        }
+      );
+    }
+  } catch (err) {
+    res.status(500).send("An unknown error occurred.");
   }
 };
 
