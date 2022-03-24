@@ -7,6 +7,7 @@ const {
   getSavedCourses,
   saveCurriculum,
   getSavedCurriculums,
+  completeCourse
 } = require("../controller/users");
 
 const router = express.Router();
@@ -24,5 +25,7 @@ router.post("/user/getSavedCourses", getSavedCourses);
 router.post("/user/saveCurriculum", saveCurriculum);
 
 router.post("/user/getSavedCurriculums", getSavedCurriculums);
+
+router.post("/user/completeCourse", completeCourse);
 
 module.exports = router;

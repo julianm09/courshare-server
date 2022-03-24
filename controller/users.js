@@ -189,6 +189,38 @@ const getSavedCurriculums = (req, res) => {
   }
 };
 
+const completeCourse = (req, res) => {
+  /*   console.log(req.body);
+  res.send() */
+  try {
+    User.find({ uid: req.body.uid }, (err, data) => {
+      const courses = data[0].curriculums.filter(
+        (x) => x.id === req.body.curId
+      )[0].courses;
+
+      const savedCourse = courses.filter(
+        (x) => x["Course Name"] === req.body.course["Course Name"]
+      )[0];
+
+      if (savedCourse) {
+        if (req.body.complete == 0) {
+          savedCourse.complete = 0;
+          res.json(courses);
+        } else if (req.body.complete == 1) {
+          savedCourse.complete = 1;
+          res.json(courses);
+        } else if (req.body.complete == 2) {
+          savedCourse.complete = 2;
+          console.log("yes");
+          res.json(courses);
+        }
+      }
+    });
+  } catch (err) {
+    res.status(500).send("An unknown error occurred.");
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -198,5 +230,6 @@ module.exports = {
   getSavedCourses,
   saveCurriculum,
   getSavedCurriculums,
+  completeCourse,
   User,
 };
