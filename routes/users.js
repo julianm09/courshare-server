@@ -26,6 +26,6 @@ router.post("/user/saveCurriculum", saveCurriculum);
 
 router.post("/user/getSavedCurriculums", getSavedCurriculums);
 
-router.post("/user/completeCourse", completeCourse);
+router.put("/user/completeCourse", completeCourse);
 
 module.exports = router;
